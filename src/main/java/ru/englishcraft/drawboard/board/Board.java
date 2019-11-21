@@ -3,9 +3,11 @@ package ru.englishcraft.drawboard.board;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import lombok.Data;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.util.Vector;
 import ru.englishcraft.drawboard.DrawBoard;
 import ru.englishcraft.drawboard.config.Config;
 
@@ -18,10 +20,13 @@ public class Board {
     @SerializedName("position1")
     private Location p1;
 
-
     @Expose
     @SerializedName("position2")
     private Location p2;
+
+    private transient Block lastDrawBlock;
+
+    private transient final double K = 2;
 
     public boolean isContains(Block block) {
         Location location = block.getLocation();
@@ -49,7 +54,28 @@ public class Board {
         if (!isContains(block))
             return;
 
-        block.setType(Material.BLACK_WOOL);
+        if (lastDrawBlock == null)
+            lastDrawBlock = block;
+
+        // DRAW
+
+        double modifer = block.getLocation().distanceSquared(lastDrawBlock.getLocation()) * K;
+        Vector vector = new Vector(
+            (lastDrawBlock.getX() - block.getX()) / modifer,
+            (lastDrawBlock.getY() - block.getY()) / modifer,
+            (lastDrawBlock.getZ() - block.getZ()) / modifer
+        );
+        Location l = block.getLocation().clone();
+        Block b;
+        for (int i = 0; i < modifer; i++) {
+            Bukkit.broadcastMessage(vector +  "");
+            l = l.add(vector);
+            b = l.getBlock();
+            b.setType(Material.BLACK_WOOL);
+        }
+
+        // END
+        lastDrawBlock = block;
     }
 
     public Board create() {
