@@ -4,6 +4,7 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import lombok.Data;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import ru.englishcraft.drawboard.DrawBoard;
 import ru.englishcraft.drawboard.config.Config;
@@ -24,6 +25,9 @@ public class Board {
 
     public boolean isContains(Block block) {
         Location location = block.getLocation();
+        if (p1 == null || p2 == null)
+            return false;
+
         if (!p1.getWorld().equals(p2.getWorld()))
             return false;
 
@@ -39,6 +43,13 @@ public class Board {
     // A <= C <= B or B <= C <= A
     private boolean between(int a, int b, int c) {
         return a <= c && c <= b || b <= c && c <= a;
+    }
+
+    public void draw(Block block) {
+        if (!isContains(block))
+            return;
+
+        block.setType(Material.BLACK_WOOL);
     }
 
     public Board create() {

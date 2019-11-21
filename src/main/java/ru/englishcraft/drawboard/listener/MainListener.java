@@ -1,9 +1,11 @@
 package ru.englishcraft.drawboard.listener;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -16,14 +18,20 @@ import ru.englishcraft.drawboard.config.Config;
 public class MainListener implements Listener {
 
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onClick(PlayerInteractEvent e) {
-        if (e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
-            Block block = e.getClickedBlock();
-            Player player = e.getPlayer().getPlayer();
-            ItemStack itemInHand = player.getInventory().getItemInMainHand();
+        Player player = e.getPlayer().getPlayer();
+        ItemStack itemInHand = player.getInventory().getItemInMainHand();
+        Config config = DrawBoard.getInstance().config();
 
-            Config config = DrawBoard.getInstance().config();
+        if (e.getAction().equals(Action.RIGHT_CLICK_AIR)) {
+            if (config.getMagicWand().equals(itemInHand.getType())) {
+                Block block = player.getTargetBlock(null, 100);
+                config.getBoards().forEach(board -> board.draw(block));
+            }
+        } else if (e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
+            Block block = e.getClickedBlock();
+
             if (
                 config.getMagicWand().equals(itemInHand.getType()) &&
                     config.getWhiteboardBlock().equals(block.getType())
