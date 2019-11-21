@@ -1,4 +1,4 @@
-package ru.englishcraft.drawboard.models;
+package ru.englishcraft.drawboard.board;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

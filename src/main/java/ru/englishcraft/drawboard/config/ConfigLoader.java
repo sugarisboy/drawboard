@@ -4,7 +4,11 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import ru.englishcraft.drawboard.DrawBoard;
+import ru.englishcraft.drawboard.config.adapters.LocationAdapter;
+import ru.englishcraft.drawboard.config.adapters.MaterialAdapter;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -61,6 +65,8 @@ public class ConfigLoader {
 
     public static Gson gson() {
         return new GsonBuilder()
+            .registerTypeAdapter(Material.class, new MaterialAdapter())
+            .registerTypeAdapter(Location.class, new LocationAdapter())
             .setPrettyPrinting()
             .create();
     }

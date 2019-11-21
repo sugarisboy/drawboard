@@ -1,5 +1,7 @@
-package ru.englishcraft.drawboard.config;
+package ru.englishcraft.drawboard.config.adapters;
 
+
+import ru.englishcraft.drawboard.config.ConfigLoader;
 
 import java.io.BufferedWriter;
 import java.io.File;
