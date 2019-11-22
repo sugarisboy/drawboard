@@ -13,11 +13,9 @@ import ru.englishcraft.drawboard.DrawBoard;
 import ru.englishcraft.drawboard.board.BoardCreator;
 import ru.englishcraft.drawboard.config.Config;
 
-
 public class MainListener implements Listener {
 
-
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onClick(PlayerInteractEvent e) {
         Player player = e.getPlayer().getPlayer();
         ItemStack itemInHand = player.getInventory().getItemInMainHand();
@@ -26,7 +24,7 @@ public class MainListener implements Listener {
         if (e.getAction().equals(Action.RIGHT_CLICK_AIR)) {
             if (config.getMagicWand().equals(itemInHand.getType())) {
                 Block block = player.getTargetBlock(null, 100);
-                config.getBoards().forEach(board -> board.draw(block));
+                config.getBoards().forEach(board -> board.draw(block, player));
             }
         } else if (e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
             Block block = e.getClickedBlock();

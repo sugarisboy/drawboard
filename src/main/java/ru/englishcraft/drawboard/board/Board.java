@@ -12,6 +12,7 @@ import ru.englishcraft.drawboard.DrawBoard;
 import ru.englishcraft.drawboard.config.Config;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,10 +27,10 @@ public class Board {
     @SerializedName("position2")
     private Location p2;
 
-    private transient Map<Player, List<DrawAction>> actions;
+    private transient Map<Player, List<DrawAction>> actions = new HashMap<>();
 
     private static transient final double K = 2D;
-    private static transient final long DROP_LINE_TIME = 75L;
+    private static transient final long DROP_LINE_TIME = 175L;
     private static transient final Material COLOR = Material.BLACK_WOOL;
 
     public boolean isContains(Block block) {
@@ -67,7 +68,8 @@ public class Board {
         }
 
         // DRAW
-        if (action.getTime() - prev.getTime() < DROP_LINE_TIME) {
+        long time = action.getTime() - prev.getTime();
+        if (time < DROP_LINE_TIME + 50L && time > DROP_LINE_TIME) {
             drawLine(action, prev);
         } else {
             action.drawBlock(block, COLOR);
@@ -100,7 +102,7 @@ public class Board {
             actions.put(player, new ArrayList<>());
             return null;
         } else {
-            return actions.get(player).get(0);
+            return actions.get(player).get(actions.get(player).size() - 1);
         }
     }
 
