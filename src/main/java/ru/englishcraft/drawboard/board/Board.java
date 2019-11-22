@@ -3,8 +3,10 @@ package ru.englishcraft.drawboard.board;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import lombok.Data;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
@@ -32,6 +34,7 @@ public class Board {
     private static transient final double K = 2D;
     private static transient final long DROP_LINE_TIME = 175L;
     private static transient final Material COLOR = Material.BLACK_WOOL;
+    private static transient final int DEPTH_ACTION_STORY = 30;
 
     public boolean isContains(Block block) {
         Location location = block.getLocation();
@@ -102,12 +105,21 @@ public class Board {
             actions.put(player, new ArrayList<>());
             return null;
         } else {
-            return actions.get(player).get(actions.get(player).size() - 1);
+            List<DrawAction> actions = this.actions.get(player);
+            return actions.size() != 0 ? actions.get(actions.size() - 1) : null;
         }
     }
 
     private void addAction(DrawAction action) {
-        actions.get(action.getPlayer()).add(action);
+        List<DrawAction> playerActions = actions.get(action.getPlayer());
+        playerActions.add(action);
+        if (playerActions.size() > DEPTH_ACTION_STORY) {
+            playerActions.remove(0);
+        }
+    }
+
+    private void dropAction(DrawAction action) {
+        actions.get(action.getPlayer()).remove(action);
     }
 
     public Board create() {
@@ -124,5 +136,49 @@ public class Board {
         List<Board> boards = config.getBoards();
         boards.remove(this);
         config.save();
+    }
+
+    public void cancel(Block block, Player player) {
+        if (!isContains(block))
+            return;
+
+        DrawAction lastAction = getLastAction(player);
+        if (lastAction == null) {
+            player.sendMessage("§c[ERROR]: §eБольше нечего отменять.");
+            return;
+        }
+
+        lastAction.cancel();
+        dropAction(lastAction);
+    }
+
+    public void clear(Block block, Player player) {
+        if (!isContains(block))
+            return;
+
+        DrawAction action = new DrawAction(player, block);
+        action.setType(DrawActionType.CLEAR);
+
+        Vector subtract = p2.toVector().subtract(p1.toVector());
+        Vector normalize = subtract.clone().divide(
+            new Vector(
+                Math.abs(subtract.getX() + .0000000000000000000000000000000001D),
+                Math.abs(subtract.getY()),
+                Math.abs(subtract.getZ() + .0000000000000000000000000000000001D)
+            )
+        );
+
+        World world = p1.getWorld();
+        Material whiteboard = DrawBoard.getInstance().config().getWhiteboardBlock();
+        for (int offsetY = 0; offsetY <= Math.abs(subtract.getY()); offsetY++) {
+            for (int offsetXZ = 0; offsetXZ <= Math.abs(subtract.getX()) + Math.abs(subtract.getZ()); offsetXZ++) {
+                Block b = world.getBlockAt(
+                    (int) (p1.getX() + offsetXZ * normalize.getX()),
+                    (int) (p1.getY() + offsetY * normalize.getY()),
+                    (int) (p1.getZ() + offsetXZ * normalize.getZ())
+                );
+                action.drawBlock(b, whiteboard);
+            }
+        }
     }
 }

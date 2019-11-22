@@ -56,7 +56,7 @@ public class BoardCreator {
                 }
             }
 
-        }, 10L, 5L);
+        }, 10L, 2L);
     }
 
     private List<Block> nearBlocks(Block block) {
@@ -86,6 +86,14 @@ public class BoardCreator {
         Block block1 = end.get(0);
         Block block2 = null;
         for (Block b : end) {
+            if (DrawBoard.getInstance().config()
+                .getBoards().stream()
+                .anyMatch(board -> board.isContains(b)))
+            {
+                player.sendMessage("§c[ERROR]: §eДанная доска пересекается с другой.");
+                return;
+            }
+
             if (
                 block1.getY() != b.getY() &&
                     (block1.getX() != b.getX() || block1.getZ() != b.getZ())) {

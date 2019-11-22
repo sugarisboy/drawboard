@@ -26,5 +26,16 @@ public class Config extends ConfigAdapter {
     @Getter
     private Material magicWand;
 
+    @Expose
+    @SerializedName("clear-wand")
+    @Getter
+    private Material clearWand;
+
+    @Expose
+    @SerializedName("cancel-wand")
+    @Getter
+    private Material cancelWand;
+
+
 
 }
