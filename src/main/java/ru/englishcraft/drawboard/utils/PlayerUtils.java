@@ -18,13 +18,19 @@ public class PlayerUtils {
 
     public static Vector toDirection(double yaw) {
         Vector v = new Vector(0, 0, 0);
+
+        while (yaw < -180)
+            yaw += 360;
+        while (yaw > 180)
+            yaw -= 360;
+
         if (-135 < yaw && yaw < -45)
             v.setX(1);
         else if (-45 < yaw && yaw < 45)
             v.setZ(1);
         else if (45 < yaw && yaw < 135)
             v.setX(-1);
-        else
+        else if (yaw < -135 || yaw > 135)
             v.setZ(-1);
         return v;
     }
