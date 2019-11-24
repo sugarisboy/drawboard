@@ -3,7 +3,7 @@ package ru.englishcraft.drawboard.board;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import lombok.Data;
-import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -12,6 +12,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import ru.englishcraft.drawboard.DrawBoard;
 import ru.englishcraft.drawboard.config.Config;
+import ru.englishcraft.drawboard.utils.PlayerUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -131,11 +132,14 @@ public class Board {
         return this;
     }
 
-    public void delete() {
+    public void delete(Player player) {
         Config config = DrawBoard.getInstance().config();
         List<Board> boards = config.getBoards();
+        fill(p1.getBlock(), player, Material.AIR);
         boards.remove(this);
         config.save();
+
+        player.sendMessage(ChatColor.GREEN + "Доска была успешно удалена!");
     }
 
     public void cancel(Block block, Player player) {
@@ -152,10 +156,7 @@ public class Board {
         dropAction(lastAction);
     }
 
-    public void clear(Block block, Player player) {
-        if (!isContains(block))
-            return;
-
+    private void fill(Block block, Player player, Material material) {
         DrawAction action = new DrawAction(player, block);
         action.setType(DrawActionType.CLEAR);
 
@@ -169,7 +170,6 @@ public class Board {
         );
 
         World world = p1.getWorld();
-        Material whiteboard = DrawBoard.getInstance().config().getWhiteboardBlock();
         for (int offsetY = 0; offsetY <= Math.abs(subtract.getY()); offsetY++) {
             for (int offsetXZ = 0; offsetXZ <= Math.abs(subtract.getX()) + Math.abs(subtract.getZ()); offsetXZ++) {
                 Block b = world.getBlockAt(
@@ -177,8 +177,16 @@ public class Board {
                     (int) (p1.getY() + offsetY * normalize.getY()),
                     (int) (p1.getZ() + offsetXZ * normalize.getZ())
                 );
-                action.drawBlock(b, whiteboard);
+                action.drawBlock(b, material);
             }
         }
+    }
+
+    public void clear(Block block, Player player) {
+        if (!isContains(block))
+            return;
+
+        Material whiteboard = DrawBoard.getInstance().config().getWhiteboardBlock();
+        fill(block, player, whiteboard);
     }
 }

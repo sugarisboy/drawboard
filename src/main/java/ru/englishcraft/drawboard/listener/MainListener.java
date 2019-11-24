@@ -37,7 +37,8 @@ public class MainListener implements Listener {
             Block block = e.getClickedBlock();
 
             if (
-                config.getMagicWand().equals(type) &&
+                player.hasPermission("drawboard.admin") &&
+                    config.getMagicWand().equals(type) &&
                     config.getWhiteboardBlock().equals(block.getType())
             ) {
                 player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));

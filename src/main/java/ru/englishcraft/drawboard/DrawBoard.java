@@ -1,6 +1,8 @@
 package ru.englishcraft.drawboard;
 
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+import ru.englishcraft.drawboard.cmd.BoardCommand;
 import ru.englishcraft.drawboard.config.Config;
 import ru.englishcraft.drawboard.config.ConfigLoader;
 import ru.englishcraft.drawboard.listener.MainListener;
@@ -21,6 +23,7 @@ public class DrawBoard extends JavaPlugin {
         this.config = configLoader.load();
 
         getServer().getPluginManager().registerEvents(new MainListener(), this);
+        Bukkit.getPluginCommand("board").setExecutor(new BoardCommand());
     }
 
     public static DrawBoard getInstance() {

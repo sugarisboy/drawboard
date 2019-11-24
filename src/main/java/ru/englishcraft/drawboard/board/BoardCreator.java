@@ -25,10 +25,14 @@ public class BoardCreator {
     private Material whiteboardBlock;
     private Player player;
 
-    public BoardCreator(Block block, Player player) {
+    private BoardCreator(Player player) {
         this.player = player;
         this.end = new LinkedList<>();
         this.all = new HashSet<>();
+    }
+
+    public BoardCreator(Block block, Player player) {
+        this(player);
 
         Config config = DrawBoard.getInstance().config();
         whiteboardBlock = config.getWhiteboardBlock();
@@ -59,6 +63,18 @@ public class BoardCreator {
         }, 10L, 2L);
     }
 
+    public BoardCreator(Block block1, Block block2, Player player) {
+        this(player);
+        this.end.add(block1);
+        this.end.add(block2);
+
+        Board board = done();
+        if (board != null) {
+            board.clear(block1, player);
+        }
+
+    }
+
     private List<Block> nearBlocks(Block block) {
         World world = block.getWorld();
         int x = block.getX();
@@ -77,7 +93,7 @@ public class BoardCreator {
             .collect(Collectors.toList());
     }
 
-    private void done() {
+    private Board done() {
         Bukkit.getScheduler().cancelTask(taskId);
         for (Block b : all) {
             b.setType(whiteboardBlock);
@@ -91,7 +107,7 @@ public class BoardCreator {
                 .anyMatch(board -> board.isContains(b)))
             {
                 player.sendMessage("§c[ERROR]: §eДанная доска пересекается с другой.");
-                return;
+                return null;
             }
 
             if (
@@ -104,12 +120,12 @@ public class BoardCreator {
         if (block2 == null) {
             error();
         } else {
-            success(
+            return success(
                 block1.getLocation(),
                 block2.getLocation()
             );
         }
-
+        return null;
     }
 
     public void error() {
@@ -117,11 +133,12 @@ public class BoardCreator {
             "Вероятнее всего, ошибка в том, что Вы кликнули инструментом создания на край доски.");
     }
 
-    public void success(Location p1, Location p2) {
+    public Board success(Location p1, Location p2) {
         Board board = new Board();
         board.setP1(p1);
         board.setP2(p2);
         board.create();
         player.sendMessage("§2[DrawBoard]: §aДоска успешно создана, можно приступать к рисованию!");
+        return board;
     }
 }

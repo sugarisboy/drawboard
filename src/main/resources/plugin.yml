@@ -3,3 +3,6 @@ name: DrawBoard
 version: 1.0
 author: vk.com/sugarisboy
 api-version: 1.13
+
+commands:
+  board:
