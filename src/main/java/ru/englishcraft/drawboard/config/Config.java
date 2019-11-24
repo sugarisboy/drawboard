@@ -36,6 +36,28 @@ public class Config extends ConfigAdapter {
     @Getter
     private Material cancelWand;
 
+    @Expose
+    @SerializedName("drop-line-time")
+    @Getter
+    private long dropLineTime = 175L;
 
+    @Expose
+    @SerializedName("depth-action-story")
+    @Getter
+    private int depthActionStory = 30;
 
+    @Expose
+    @SerializedName("use-chinese-name")
+    @Getter
+    private boolean useChineseName = true;
+
+    @Expose
+    @SerializedName("max-width-board")
+    @Getter
+    private int maxWidthBoard = 100;
+
+    @Expose
+    @SerializedName("max-height-board")
+    @Getter
+    private int maxHeightBoard = 100;
 }

@@ -10,12 +10,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import ru.englishcraft.drawboard.DrawBoard;
 import ru.englishcraft.drawboard.board.BoardCreator;
+import ru.englishcraft.drawboard.config.Config;
 import ru.englishcraft.drawboard.utils.PlayerUtils;
 
 public class BoardCommand implements CommandExecutor {
-
-    private final int MAX_WIDTH = 150;
-    private final int MAX_HEIGHT = 100;
 
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] args) {
@@ -40,12 +38,16 @@ public class BoardCommand implements CommandExecutor {
                         return true;
                     }
 
-                    if (height > MAX_HEIGHT) {
-                        player.sendMessage(ChatColor.RED + "Максимальная высота: " + MAX_HEIGHT + " блоков");
+                    Config config = DrawBoard.getInstance().config();
+                    int maxHeightBoard = config.getMaxHeightBoard();
+                    int maxWidthBoard = config.getMaxWidthBoard();
+
+                    if (height > maxHeightBoard) {
+                        player.sendMessage(ChatColor.RED + "Максимальная высота: " + maxHeightBoard + " блоков");
                         return true;
                     }
-                    if (width > MAX_WIDTH) {
-                        player.sendMessage(ChatColor.RED + "Максимальная ширина: " + MAX_WIDTH + " блоков");
+                    if (width > maxWidthBoard) {
+                        player.sendMessage(ChatColor.RED + "Максимальная ширина: " + maxWidthBoard + " блоков");
                         return true;
                     }
 
@@ -73,6 +75,9 @@ public class BoardCommand implements CommandExecutor {
                             .forEach(board -> board.delete(player));
                     } catch (Exception ignored) {
                     }
+                    return true;
+                } else if (args[0].equalsIgnoreCase("reload")) {
+                    DrawBoard.getInstance().reloadConfig();
                     return true;
                 }
             }

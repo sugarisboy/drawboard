@@ -37,7 +37,7 @@ public class DrawAction {
         this.mainBlock = block;
     }
 
-    public void drawBlock(Block block, DrawColor color) {
+    public void changeBlock(Block block, DrawColor color) {
         Material material = color.getMaterial();
         if (material.equals(block.getType()))
             return;

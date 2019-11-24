@@ -37,7 +37,7 @@ public class ConfigLoader {
                     StandardCopyOption.REPLACE_EXISTING
                 );
             } catch (IOException e) {
-                Bukkit.getLogger().warning("File create exception.");
+                Bukkit.getLogger().warning("File initBoard exception.");
                 e.printStackTrace();
             }
         }
@@ -46,7 +46,9 @@ public class ConfigLoader {
         try {
             Scanner scan = new Scanner(store);
             while (scan.hasNextLine()) {
-                json += scan.nextLine() + "\n";
+                String line = scan.nextLine();
+                if (!line.replace(" ", "").startsWith("//"))
+                    json += line + "\n";
             }
         } catch (FileNotFoundException e) {
             Bukkit.getLogger().warning("Error, file not found!");

@@ -20,8 +20,7 @@ public class DrawBoard extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        ConfigLoader configLoader = new ConfigLoader();
-        this.config = configLoader.load();
+        reloadConfig();
 
         getServer().getPluginManager().registerEvents(new MainListener(), this);
         Bukkit.getPluginCommand("board").setExecutor(new BoardCommand());
@@ -30,6 +29,11 @@ public class DrawBoard extends JavaPlugin {
 
     public static DrawBoard getInstance() {
         return instance;
+    }
+
+    public void reloadConfig() {
+        ConfigLoader configLoader = new ConfigLoader();
+        this.config = configLoader.load();
     }
 
     public Config config() {

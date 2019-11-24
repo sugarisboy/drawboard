@@ -1,7 +1,12 @@
 {
   "whiteboard-block": "WHITE_WOOL",
   "magic-wand": "BLACK_DYE",
-  "clear-wand": "MILK_BUCKET",
+  "clear-wand": "PAPER",
   "cancel-wand": "NAME_TAG",
+  "max-width-board": 150,
+  "max-height-board": 100,
+  "depth-action-story": 30,
+  "use-chinese-name": true,
+  "drop-line-time": 175,
   "boards": []
 }

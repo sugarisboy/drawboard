@@ -2,6 +2,7 @@ package ru.englishcraft.drawboard.board;
 
 import lombok.Getter;
 import org.bukkit.Material;
+import ru.englishcraft.drawboard.DrawBoard;
 
 public enum DrawColor {
 
@@ -22,8 +23,6 @@ public enum DrawColor {
     RED(Material.RED_WOOL, "Красный", "红色"),
     BLACK(Material.BLACK_WOOL, "Черный", "黑色"),
     AIR(Material.AIR, "Unnamed", "Unnamed", false);
-
-    private static final boolean USE_CHINE_NAME = true;
 
     @Getter
     private Material material;
@@ -48,7 +47,7 @@ public enum DrawColor {
     }
 
     public String getDisplayName() {
-        return USE_CHINE_NAME ? chinese : russian;
+        return DrawBoard.getInstance().config().isUseChineseName() ? chinese : russian;
     }
 
     public static DrawColor valueOf(Material material) {

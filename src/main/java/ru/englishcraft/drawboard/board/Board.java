@@ -29,35 +29,66 @@ public class Board {
     @SerializedName("position2")
     private Location p2;
 
+    private static transient final double K = 2D;
+
     private transient Map<Player, List<DrawAction>> actions = new HashMap<>();
     private transient Map<Player, DrawColor> colors = new HashMap<>();
 
-    private static transient final double K = 2D;
-    private static transient final long DROP_LINE_TIME = 175L;
-    private static transient final int DEPTH_ACTION_STORY = 30;
-
-    public boolean isContains(Block block) {
-        Location location = block.getLocation();
-        if (p1 == null || p2 == null)
-            return false;
-
-        if (!p1.getWorld().equals(p2.getWorld()))
-            return false;
-
-        if (!location.getWorld().equals(p1.getWorld()))
-            return false;
-
-        return
-            between(p1.getBlockX(), p2.getBlockX(), location.getBlockX()) &&
-            between(p1.getBlockY(), p2.getBlockY(), location.getBlockY()) &&
-            between(p1.getBlockZ(), p2.getBlockZ(), location.getBlockZ());
+    /**
+     * Save board in config and store
+     *
+     */
+    public void initBoard() {
+        Config config = DrawBoard.getInstance().config();
+        List<Board> boards = config.getBoards();
+        boards.add(this);
+        config.save();
     }
 
-    // A <= C <= B or B <= C <= A
-    private boolean between(int a, int b, int c) {
-        return a <= c && c <= b || b <= c && c <= a;
+    public void delete(Player player) {
+        Config config = DrawBoard.getInstance().config();
+        List<Board> boards = config.getBoards();
+        fill(p1.getBlock(), player, DrawColor.AIR);
+        boards.remove(this);
+        config.save();
+
+        player.sendMessage(ChatColor.GREEN + "Доска была успешно удалена!");
     }
 
+    /**
+     * Cancel last action for player
+     *
+     * @param block
+     * @param player
+     */
+    public void cancel(Block block, Player player) {
+        if (!isContains(block))
+            return;
+
+        DrawAction lastAction = getLastAction(player);
+        if (lastAction == null) {
+            player.sendMessage("§c[ERROR]: §eБольше нечего отменять.");
+            return;
+        }
+
+        lastAction.cancel();
+        dropAction(lastAction);
+    }
+
+    public void clear(Block block, Player player) {
+        if (!isContains(block))
+            return;
+
+        Material whiteboard = DrawBoard.getInstance().config().getWhiteboardBlock();
+        fill(block, player, DrawColor.WHITE);
+    }
+
+    /**
+     * draw line or dot depending on time
+     *
+     * @param block
+     * @param player
+     */
     public void draw(Block block, Player player) {
         if (!isContains(block))
             return;
@@ -73,10 +104,11 @@ public class Board {
         // DRAW
         DrawColor color = colors.getOrDefault(player, DrawColor.BLACK);
         long time = action.getTime() - prev.getTime();
-        if (time < DROP_LINE_TIME + 50L && time > DROP_LINE_TIME) {
+        long dropLineTime = DrawBoard.getInstance().config().getDropLineTime();
+        if (time < dropLineTime + 50L && time > dropLineTime) {
             drawLine(action, prev);
         } else {
-            action.drawBlock(block, color);
+            action.changeBlock(block, color);
         }
     }
 
@@ -84,83 +116,30 @@ public class Board {
         colors.put(player, color);
     }
 
-    private void drawLine(DrawAction action, DrawAction prev) {
-        Block b1 = action.getMainBlock();
-        Block b2 = prev.getMainBlock();
+    /**
+     * @param block - checkable block
+     * @return true if block contains this board
+     */
+    public boolean isContains(Block block) {
+        Location location = block.getLocation();
+        if (p1 == null || p2 == null)
+            return false;
 
-        double modifer = b1.getLocation().distanceSquared(b2.getLocation()) * K;
-        Vector vector = new Vector(
-            (b2.getX() - b1.getX()) / modifer,
-            (b2.getY() - b1.getY()) / modifer,
-            (b2.getZ() - b1.getZ()) / modifer
-        );
+        if (!p1.getWorld().equals(p2.getWorld()))
+            return false;
 
-        Block b;
-        Location l = b1.getLocation().clone();
+        if (!location.getWorld().equals(p1.getWorld()))
+            return false;
 
-        DrawColor color = colors.getOrDefault(action.getPlayer(), DrawColor.BLACK);
-        for (int i = 0; i < modifer; i++) {
-            l = l.add(vector);
-            b = l.getBlock();
-            action.drawBlock(b, color);
-        }
+        return
+            between(p1.getBlockX(), p2.getBlockX(), location.getBlockX()) &&
+                between(p1.getBlockY(), p2.getBlockY(), location.getBlockY()) &&
+                between(p1.getBlockZ(), p2.getBlockZ(), location.getBlockZ());
     }
 
-    private DrawAction getLastAction(Player player) {
-        if (!actions.containsKey(player)) {
-            actions.put(player, new ArrayList<>());
-            return null;
-        } else {
-            List<DrawAction> actions = this.actions.get(player);
-            return actions.size() != 0 ? actions.get(actions.size() - 1) : null;
-        }
-    }
-
-    private void addAction(DrawAction action) {
-        List<DrawAction> playerActions = actions.get(action.getPlayer());
-        playerActions.add(action);
-        if (playerActions.size() > DEPTH_ACTION_STORY) {
-            playerActions.remove(0);
-        }
-    }
-
-    private void dropAction(DrawAction action) {
-        actions.get(action.getPlayer()).remove(action);
-    }
-
-    public Board create() {
-        Config config = DrawBoard.getInstance().config();
-        List<Board> boards = config.getBoards();
-        boards.add(this);
-        config.save();
-
-        return this;
-    }
-
-    public void delete(Player player) {
-        Config config = DrawBoard.getInstance().config();
-        List<Board> boards = config.getBoards();
-        fill(p1.getBlock(), player, DrawColor.AIR);
-        boards.remove(this);
-        config.save();
-
-        player.sendMessage(ChatColor.GREEN + "Доска была успешно удалена!");
-    }
-
-    public void cancel(Block block, Player player) {
-        if (!isContains(block))
-            return;
-
-        DrawAction lastAction = getLastAction(player);
-        if (lastAction == null) {
-            player.sendMessage("§c[ERROR]: §eБольше нечего отменять.");
-            return;
-        }
-
-        lastAction.cancel();
-        dropAction(lastAction);
-    }
-
+    /**
+     * fill board
+     */
     private void fill(Block block, Player player, DrawColor color) {
         DrawAction action = new DrawAction(player, block);
         action.setType(DrawActionType.CLEAR);
@@ -182,16 +161,66 @@ public class Board {
                     (int) (p1.getY() + offsetY * normalize.getY()),
                     (int) (p1.getZ() + offsetXZ * normalize.getZ())
                 );
-                action.drawBlock(b, color);
+                action.changeBlock(b, color);
             }
         }
     }
 
-    public void clear(Block block, Player player) {
-        if (!isContains(block))
-            return;
+    /**
+     * draw line
+     *
+     * @param action
+     * @param prev
+     */
+    private void drawLine(DrawAction action, DrawAction prev) {
+        Block b1 = action.getMainBlock();
+        Block b2 = prev.getMainBlock();
 
-        Material whiteboard = DrawBoard.getInstance().config().getWhiteboardBlock();
-        fill(block, player, DrawColor.WHITE);
+        double modifer = b1.getLocation().distanceSquared(b2.getLocation()) * K;
+        Vector vector = new Vector(
+            (b2.getX() - b1.getX()) / modifer,
+            (b2.getY() - b1.getY()) / modifer,
+            (b2.getZ() - b1.getZ()) / modifer
+        );
+
+        Block b;
+        Location l = b1.getLocation().clone();
+
+        DrawColor color = colors.getOrDefault(action.getPlayer(), DrawColor.BLACK);
+        for (int i = 0; i < modifer; i++) {
+            l = l.add(vector);
+            b = l.getBlock();
+            action.changeBlock(b, color);
+        }
+    }
+
+    private void dropAction(DrawAction action) {
+        actions.get(action.getPlayer()).remove(action);
+    }
+
+    private DrawAction getLastAction(Player player) {
+        if (!actions.containsKey(player)) {
+            actions.put(player, new ArrayList<>());
+            return null;
+        } else {
+            List<DrawAction> actions = this.actions.get(player);
+            return actions.size() != 0 ? actions.get(actions.size() - 1) : null;
+        }
+    }
+
+    private void addAction(DrawAction action) {
+        List<DrawAction> playerActions = actions.get(action.getPlayer());
+        playerActions.add(action);
+        long depthActionStory = DrawBoard.getInstance().config().getDepthActionStory();
+        if (playerActions.size() > depthActionStory) {
+            playerActions.remove(0);
+        }
+    }
+
+    /**
+     * @return A <= C <= B or B <= C <= A
+     */
+    private boolean between(int a, int b, int c) {
+        return a <= c && c <= b || b <= c && c <= a;
     }
 }

@@ -31,6 +31,7 @@ public class BoardCreator {
         this.all = new HashSet<>();
     }
 
+    // identify size board
     public BoardCreator(Block block, Player player) {
         this(player);
 
@@ -43,7 +44,7 @@ public class BoardCreator {
         taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(DrawBoard.getInstance(), () -> {
 
             if (nears == null || nears.size() == 0)
-                done();
+                init();
 
             Set<Block> oldNears = new HashSet<>(nears);
             nears.clear();
@@ -63,12 +64,13 @@ public class BoardCreator {
         }, 10L, 2L);
     }
 
+    // init board by two point
     public BoardCreator(Block block1, Block block2, Player player) {
         this(player);
         this.end.add(block1);
         this.end.add(block2);
 
-        Board board = done();
+        Board board = init();
         if (board != null) {
             board.clear(block1, player);
         }
@@ -93,7 +95,7 @@ public class BoardCreator {
             .collect(Collectors.toList());
     }
 
-    private Board done() {
+    private Board init() {
         Bukkit.getScheduler().cancelTask(taskId);
         for (Block b : all) {
             b.setType(whiteboardBlock);
@@ -128,17 +130,17 @@ public class BoardCreator {
         return null;
     }
 
-    public void error() {
-        player.sendMessage("§c[ERROR]: §eНеудалось создать доску для рисования.\n" +
-            "Вероятнее всего, ошибка в том, что Вы кликнули инструментом создания на край доски.");
-    }
-
-    public Board success(Location p1, Location p2) {
+    private Board success(Location p1, Location p2) {
         Board board = new Board();
         board.setP1(p1);
         board.setP2(p2);
-        board.create();
+        board.initBoard();
         player.sendMessage("§2[DrawBoard]: §aДоска успешно создана, можно приступать к рисованию!");
         return board;
+    }
+
+    private void error() {
+        player.sendMessage("§c[ERROR]: §eНеудалось создать доску для рисования.\n" +
+            "Вероятнее всего, ошибка в том, что Вы кликнули инструментом создания на край доски.");
     }
 }

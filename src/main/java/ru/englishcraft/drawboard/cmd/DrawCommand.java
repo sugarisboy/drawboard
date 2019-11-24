@@ -20,14 +20,13 @@ public class DrawCommand implements CommandExecutor {
         if (commandSender instanceof Player) {
             Player player = (Player) commandSender;
 
-            PlayerInventory inventory = player.getInventory();
             Config config = DrawBoard.getInstance().config();
 
             Material materialMagicWand = config.getMagicWand();
             Material materialCancel = config.getCancelWand();
             Material materialClear = config.getClearWand();
 
-            ItemStack magicwand = PlayerUtils.generateItem(materialMagicWand, "Кисточка",
+            ItemStack magicWand = PlayerUtils.generateItem(materialMagicWand, "Кисточка",
                 Arrays.asList(
                     "Зажми правую кнопку мыши для рисования на холсте,",
                     "нажми на правую кнопку мыши, чтобы закрасить один блок.",
@@ -51,7 +50,7 @@ public class DrawCommand implements CommandExecutor {
                 )
             );
 
-            player.getInventory().setItem(0, magicwand);
+            player.getInventory().setItem(0, magicWand);
             player.getInventory().setItem(1, cancel);
             player.getInventory().setItem(2, clear);
 
