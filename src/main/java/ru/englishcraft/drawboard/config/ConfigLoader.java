@@ -47,7 +47,6 @@ public class ConfigLoader {
             Scanner scan = new Scanner(store);
             while (scan.hasNextLine()) {
                 String line = scan.nextLine();
-                if (!line.replace(" ", "").startsWith("//"))
                     json += line + "\n";
             }
         } catch (FileNotFoundException e) {

@@ -15,7 +15,7 @@ public class LocationAdapter extends TypeAdapter<Location> {
         if (location != null) {
             out.value(String.format(
                 "%s %d %d %d",
-                location.getWorld().getName(),
+                location.getWorld().getName().replace(" ", "~"),
                 location.getBlockX(),
                 location.getBlockY(),
                 location.getBlockZ()
@@ -30,7 +30,7 @@ public class LocationAdapter extends TypeAdapter<Location> {
         String string = in.nextString();
         String[] data = string.split(" ");
         if  (data.length == 4) {
-            String worldName = data[0];
+            String worldName = data[0].replace("~", " ");
             int x = Integer.valueOf(data[1]);
             int y = Integer.valueOf(data[2]);
             int z = Integer.valueOf(data[3]);

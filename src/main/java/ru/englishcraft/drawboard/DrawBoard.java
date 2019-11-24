@@ -13,6 +13,7 @@ public class DrawBoard extends JavaPlugin {
     private static DrawBoard instance;
 
     private Config config;
+    private ConfigLoader configLoader;
 
     public DrawBoard() {
         instance = this;
@@ -32,8 +33,9 @@ public class DrawBoard extends JavaPlugin {
     }
 
     public void reloadConfig() {
-        ConfigLoader configLoader = new ConfigLoader();
-        this.config = configLoader.load();
+        if (configLoader == null)
+            configLoader = new ConfigLoader();
+        config = configLoader.load();
     }
 
     public Config config() {
