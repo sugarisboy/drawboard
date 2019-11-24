@@ -37,18 +37,12 @@ public class DrawAction {
         this.mainBlock = block;
     }
 
-    public void drawBlock(Block block, Material material) {
+    public void drawBlock(Block block, DrawColor color) {
+        Material material = color.getMaterial();
         if (material.equals(block.getType()))
             return;
 
         blockUpdated.put(block, block.getType());
-        /*blockUpdated.forEach((key, value) ->
-            Bukkit.broadcastMessage(String.format("[%d] %d %d %d %s: %s",
-                id,
-                key.getX(), key.getY(), key.getZ(),
-                key.getType().name(),
-                value.name()
-            )));*/
         block.setType(material);
     }
 

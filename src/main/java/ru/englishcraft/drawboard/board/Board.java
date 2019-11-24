@@ -12,7 +12,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import ru.englishcraft.drawboard.DrawBoard;
 import ru.englishcraft.drawboard.config.Config;
-import ru.englishcraft.drawboard.utils.PlayerUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,10 +30,10 @@ public class Board {
     private Location p2;
 
     private transient Map<Player, List<DrawAction>> actions = new HashMap<>();
+    private transient Map<Player, DrawColor> colors = new HashMap<>();
 
     private static transient final double K = 2D;
     private static transient final long DROP_LINE_TIME = 175L;
-    private static transient final Material COLOR = Material.BLACK_WOOL;
     private static transient final int DEPTH_ACTION_STORY = 30;
 
     public boolean isContains(Block block) {
@@ -72,12 +71,17 @@ public class Board {
         }
 
         // DRAW
+        DrawColor color = colors.getOrDefault(player, DrawColor.BLACK);
         long time = action.getTime() - prev.getTime();
         if (time < DROP_LINE_TIME + 50L && time > DROP_LINE_TIME) {
             drawLine(action, prev);
         } else {
-            action.drawBlock(block, COLOR);
+            action.drawBlock(block, color);
         }
+    }
+
+    public void changeColor(Player player, DrawColor color) {
+        colors.put(player, color);
     }
 
     private void drawLine(DrawAction action, DrawAction prev) {
@@ -94,10 +98,11 @@ public class Board {
         Block b;
         Location l = b1.getLocation().clone();
 
+        DrawColor color = colors.getOrDefault(action.getPlayer(), DrawColor.BLACK);
         for (int i = 0; i < modifer; i++) {
             l = l.add(vector);
             b = l.getBlock();
-            action.drawBlock(b, COLOR);
+            action.drawBlock(b, color);
         }
     }
 
@@ -135,7 +140,7 @@ public class Board {
     public void delete(Player player) {
         Config config = DrawBoard.getInstance().config();
         List<Board> boards = config.getBoards();
-        fill(p1.getBlock(), player, Material.AIR);
+        fill(p1.getBlock(), player, DrawColor.AIR);
         boards.remove(this);
         config.save();
 
@@ -156,7 +161,7 @@ public class Board {
         dropAction(lastAction);
     }
 
-    private void fill(Block block, Player player, Material material) {
+    private void fill(Block block, Player player, DrawColor color) {
         DrawAction action = new DrawAction(player, block);
         action.setType(DrawActionType.CLEAR);
 
@@ -177,7 +182,7 @@ public class Board {
                     (int) (p1.getY() + offsetY * normalize.getY()),
                     (int) (p1.getZ() + offsetXZ * normalize.getZ())
                 );
-                action.drawBlock(b, material);
+                action.drawBlock(b, color);
             }
         }
     }
@@ -187,6 +192,6 @@ public class Board {
             return;
 
         Material whiteboard = DrawBoard.getInstance().config().getWhiteboardBlock();
-        fill(block, player, whiteboard);
+        fill(block, player, DrawColor.WHITE);
     }
 }

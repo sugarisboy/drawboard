@@ -15,7 +15,6 @@ import java.util.Arrays;
 
 public class DrawCommand implements CommandExecutor {
 
-
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] args) {
         if (commandSender instanceof Player) {

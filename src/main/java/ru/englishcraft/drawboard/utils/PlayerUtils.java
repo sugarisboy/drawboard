@@ -1,15 +1,19 @@
 package ru.englishcraft.drawboard.utils;
 
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.MaterialData;
 import org.bukkit.util.Vector;
+import ru.englishcraft.drawboard.board.DrawColor;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class PlayerUtils {
 
@@ -33,10 +37,27 @@ public class PlayerUtils {
         ItemMeta meta = itemStack.getItemMeta();
         meta.setDisplayName(ChatColor.GREEN + name);
 
-        List<String> colorLore = lore.stream().map(line -> " " + ChatColor.GRAY + line + " ").collect(Collectors.toList());
-        meta.setLore(colorLore);
+        if (lore != null) {
+            List<String> colorLore = lore.stream()
+                .map(line -> " " + ChatColor.GRAY + line + " ")
+                .collect(Collectors.toList());
+            meta.setLore(colorLore);
+        }
 
         itemStack.setItemMeta(meta);
         return itemStack;
+    }
+
+    public static Inventory convertColorToInv() {
+        int length = DrawColor.values().length;
+        int size = length / 9 + 1;
+        Inventory inventory = Bukkit.createInventory(null, size * 9, ChatColor.DARK_GRAY + "Выберите цвет: ");
+
+        Stream.of(DrawColor.values())
+            .filter(DrawColor::isDisplay)
+            .map(color -> generateItem(color.getMaterial(), color.getDisplayName(), null))
+            .forEach(inventory::addItem);
+
+        return inventory;
     }
 }
