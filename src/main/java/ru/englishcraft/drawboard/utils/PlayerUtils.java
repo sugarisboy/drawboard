@@ -1,7 +1,15 @@
 package ru.englishcraft.drawboard.utils;
 
 
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.material.MaterialData;
 import org.bukkit.util.Vector;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class PlayerUtils {
 
@@ -18,5 +26,17 @@ public class PlayerUtils {
         }
 
         return v;
+    }
+
+    public static ItemStack generateItem(Material material, String name, List<String> lore) {
+        ItemStack itemStack = new ItemStack(material);
+        ItemMeta meta = itemStack.getItemMeta();
+        meta.setDisplayName(ChatColor.GREEN + name);
+
+        List<String> colorLore = lore.stream().map(line -> " " + ChatColor.GRAY + line + " ").collect(Collectors.toList());
+        meta.setLore(colorLore);
+
+        itemStack.setItemMeta(meta);
+        return itemStack;
     }
 }
